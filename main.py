@@ -1,9 +1,13 @@
-#Programa principal
-# Gym Membership Management System
+"""
+Gym Membership Management System.
+
+This script allows users to select a gym membership plan, add optional and premium features,
+calculate the total cost including discounts, and confirm the membership.
+"""
 
 from dataclasses import dataclass, field
 import math
-from typing import List, Dict
+from typing import List
 
 # Define Membership Plans and Features
 membership_plans = {
@@ -20,14 +24,22 @@ additional_features = {
 
 premium_features = {'Exclusive Gym Access': 70, 'Specialized Training': 100}
 
+
 @dataclass
 class Membership:
+    """
+    Represents a gym membership with selected features, type, and number of members.
+    """
     type: str
     features: List[str] = field(default_factory=list)
     premium_features: List[str] = field(default_factory=list)
     members: int = 1
 
     def validate_membership(self):
+        """
+        Validates whether the selected membership type and features are valid.
+        Raises ValueError if any issue is found.
+        """
         if self.type not in membership_plans:
             raise ValueError("Invalid membership type.")
 
@@ -41,6 +53,10 @@ class Membership:
                 raise ValueError(f"Premium feature '{feature}' is not available.")
 
     def calculate_cost(self):
+        """
+        Calculates the total cost of the membership based on selected features and discounts.
+        Returns -1 if validation fails.
+        """
         try:
             self.validate_membership()
         except ValueError as e:
@@ -53,12 +69,10 @@ class Membership:
 
         total = base_cost + feature_cost + premium_cost
 
-        # Group Discount
         if self.members >= 2:
             print("Group discount of 10% applied.")
             total *= 0.9
 
-        # Special Offers
         if total > 400:
             print("Special discount of $50 applied.")
             total -= 50
@@ -66,14 +80,18 @@ class Membership:
             print("Special discount of $20 applied.")
             total -= 20
 
-        # Premium surcharge
         if self.premium_features:
             print("15% surcharge for premium features applied.")
             total *= 1.15
 
         return math.ceil(total)
 
+
 def confirm_membership(membership: Membership):
+    """
+    Confirms the membership with the user after showing the summary and calculated cost.
+    Returns the cost if confirmed, -1 otherwise.
+    """
     cost = membership.calculate_cost()
     if cost == -1:
         return -1
@@ -81,18 +99,26 @@ def confirm_membership(membership: Membership):
     print("\n--- Membership Summary ---")
     print(f"Plan: {membership.type}")
     print(f"Members: {membership.members}")
-    print(f"Additional Features: {', '.join(membership.features) if membership.features else 'None'}")
-    print(f"Premium Features: {', '.join(membership.premium_features) if membership.premium_features else 'None'}")
+
+    additional = ', '.join(membership.features) if membership.features else 'None'
+    premium = ', '.join(membership.premium_features) if membership.premium_features else 'None'
+
+    print(f"Additional Features: {additional}")
+    print(f"Premium Features: {premium}")
     print(f"Total Cost: ${cost}")
 
     confirm = input("\nConfirm membership? (yes/no): ").lower()
     if confirm == 'yes':
         return cost
-    else:
-        print("Membership canceled.")
-        return -1
+
+    print("Membership canceled.")
+    return -1
+
 
 def run():
+    """
+    Runs the interactive flow for creating and confirming a gym membership.
+    """
     try:
         plan = input(f"Select a membership plan {list(membership_plans.keys())}: ")
         members = int(input("Number of members signing up together: "))
@@ -101,15 +127,18 @@ def run():
         if plan in additional_features:
             available = additional_features[plan]
             print(f"Available features for {plan}: {available}")
-            features = input("Enter desired additional features separated by commas (or leave blank): ").split(',')
-            features = [f.strip() for f in features if f.strip()]
+            raw_features = input(
+                "Enter desired additional features separated by commas (or leave blank): "
+            )
+            features = [f.strip() for f in raw_features.split(',') if f.strip()]
 
         print(f"Available premium features: {premium_features}")
-        premium = input("Enter desired premium features separated by commas (or leave blank): ").split(',')
-        premium = [f.strip() for f in premium if f.strip()]
+        raw_premium = input("Enter desired premium features separated by commas (or leave blank): ")
+        premium = [f.strip() for f in raw_premium.split(',') if f.strip()]
 
-        membership = Membership(type=plan, features=features, premium_features=premium, members=members)
+        membership=Membership(type=plan,features=features,premium_features=premium,members=members)
+
         return confirm_membership(membership)
-    except Exception as e:
-        print("Error during input:", e)
+    except ValueError as e:
+        print("Input error:", e)
         return -1
