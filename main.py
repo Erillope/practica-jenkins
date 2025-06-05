@@ -90,3 +90,25 @@ def confirm_membership(membership: Membership):
     else:
         print("Membership canceled.")
         return -1
+
+def run():
+    try:
+        plan = input(f"Select a membership plan {list(membership_plans.keys())}: ")
+        members = int(input("Number of members signing up together: "))
+
+        features = []
+        if plan in additional_features:
+            available = additional_features[plan]
+            print(f"Available features for {plan}: {available}")
+            features = input("Enter desired additional features separated by commas (or leave blank): ").split(',')
+            features = [f.strip() for f in features if f.strip()]
+
+        print(f"Available premium features: {premium_features}")
+        premium = input("Enter desired premium features separated by commas (or leave blank): ").split(',')
+        premium = [f.strip() for f in premium if f.strip()]
+
+        membership = Membership(type=plan, features=features, premium_features=premium, members=members)
+        return confirm_membership(membership)
+    except Exception as e:
+        print("Error during input:", e)
+        return -1
