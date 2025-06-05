@@ -2,6 +2,7 @@
 # Gym Membership Management System
 
 from dataclasses import dataclass, field
+import math
 from typing import List, Dict
 
 # Define Membership Plans and Features
@@ -70,7 +71,7 @@ class Membership:
             print("15% surcharge for premium features applied.")
             total *= 1.15
 
-        return round(total)
+        return math.ceil(total)
 
 def confirm_membership(membership: Membership):
     cost = membership.calculate_cost()
